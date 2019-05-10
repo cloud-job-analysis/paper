@@ -75,16 +75,14 @@ In datacenter environments, there are many different types of resources that are
 \end{itemize}
 
 \section{Related Work}
+In recent years, there have been several papers that have proposed methods for improving scheduling performance by using statistical analysis on past job runs.
 
-Currently, scheduling algorithms that rely on estimating job run times leave a lot to be desired.
-As a result, much work has been done to expand their utility, optimization policy and generalizability.
-
-One key method to gather approximate job run times that has been explored is the use of system logs. System logs are reflective of the state of running jobs and resource utilisation.
-In an attempt to exploit this, \cite{predictjobcompletion} design hidden markov models (HMMs) to predict job completion times for supercomputing cluster setting.
-To begin with, they force all log messages to be written in the same template.
-However, not all log messages are useful for job completion times, so sequence mining and frequency distribution analysis was used to select relevant log messages.
-Finally, a discrete HMM was built such that each message has its own transition matrix and emission matrix.
-The terminal state in this model is the job residual time, which is predicted everytime an important log message is encountered.
+One proposed method to gather approximate job run times is making use of system logs. System logs are reflective of the state of running jobs and resource utilization.
+\cite{predictjobcompletion} proposed using hidden markov models to predict job completion times for supercomputing cluster setting.
+They first force all log messages to be written in the same template.
+Then, since not all log messages are useful for job completion times, sequence mining and frequency distribution analysis are used to select relevant log messages.
+Finally, a discrete HMM is trained such that each message has its own transition matrix and emission matrix.
+The terminal state in this model is the job residual time, which is predicted every time an important log message is encountered.
 
 \cite{dualsimplex} tackled the task of predicting CPU burst times using a linear programming approach by using the dual simplex method.
 This work uses SJF to record waiting, burst and turnaround time of individual processes before converting into a linear programming problem.
@@ -102,9 +100,7 @@ Methods also attempt to leverage the iterative aspect of machine learning jobs b
 Various companies use customized schedulers for to schedule resource-intensive computation jobs.
 But such a paradigm is focused on just large-scale machine learning jobs and does not account for heterogeneity.
 
-Due to the variety of possible training objectives in such a scenario, DeepRM \cite{deeprl} present a reinforcement learning agent that tries to incorporate peculiar system features in a generalizable model.
-
-To the effect of learning more from data on different types of jobs, we build a simple machine learning model.
+% To address the variety of possible training objectives in such a scenario, DeepRM \cite{deeprl} present a reinforcement learning agent that tries to incorporate peculiar system features in a generalizable model.
 
 \section{System Design}
 
@@ -157,10 +153,9 @@ The master connects with the agent by sending a request to the agent on port 800
 Once the agent is assigned a job, it creates a new "child" thread to execute this job as long as the agent has enough resources available to execute the job. The parent goes back to waiting for new jobs. After this, the agent's parent thread repeats this process within a loop. 
 
 The child thread, created by the agent to execute the assigned job, executes the command passed by the master using the subprocess Python module. After the task has finished executing, the child thread then computes the runtime for the job and increases the agent's list of resources to reflect the resources that are now available. Upon completion, the child thread aggregates the runtime and job resources that were previously in use by the process and returns this as an update to the master.
-The agent continues accepting jobs and sending updates in a cyclic manner until the master no longer runs. Once the master is done executing, the agent closes its connection with the master and shuts down.
+The agent continues accepting jobs and sending updates in a cyclic manner until the master no longer runs. Once the master is done executing, the connection between the agent and master is closed and the agent program exits.
 
 \subsection{Communication}
-
 The master and agent communicate with each other using SocketIO.
 Initially, the agent opens a socket to which the master then connects.
 As long as this socket is open, both the master and agent can receive communication from each other.
